@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 using Zenject;
@@ -9,6 +10,18 @@ using Zenject;
 [RequireComponent(typeof(NavMeshAgent))]
 public class Enemy : MonoBehaviour
 {
+	/// <summary>
+	/// The letter for the enemy to show
+	/// </summary>
+	[SerializeField]
+	public char _letter;
+
+	/// <summary>
+	/// The display for the letter
+	/// </summary>
+	[SerializeField]
+	private TextMeshProUGUI _letterDisplay;
+
 	/// <summary>
 	/// How far away to pick a random position
 	/// </summary>
@@ -26,6 +39,18 @@ public class Enemy : MonoBehaviour
 	private Coroutine _pathCoroutine;
 
 	/// <summary>
+	/// Getter and setter for the enemy's letter
+	/// </summary>
+	public char Letter {
+		get { return _letter; }
+		set
+		{
+			_letter = value;
+			_letterDisplay.SetText(_letter.ToString());
+		}
+	}
+
+	/// <summary>
 	/// Self-initialization
 	/// </summary>
 	private void Awake()
@@ -41,7 +66,7 @@ public class Enemy : MonoBehaviour
 		// Check if the current pathing is complete
 		if (_agent.IsComplete() && _pathCoroutine == null)
 		{
-			_pathCoroutine = StartCoroutine(PickNewPath());
+			//_pathCoroutine = StartCoroutine(PickNewPath());
 		}
 	}
 
@@ -57,6 +82,7 @@ public class Enemy : MonoBehaviour
 		// Pick a new path!
 		var direction = (Random.insideUnitSphere * _randomDistance) + transform.position;
 		NavMeshHit hit;
+		
 		NavMesh.SamplePosition(direction, out hit, _randomDistance, -1);
 		_agent.SetDestination(hit.position);
 

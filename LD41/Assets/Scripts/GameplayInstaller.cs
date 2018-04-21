@@ -26,6 +26,8 @@ public class GameplayInstaller : MonoInstaller<GameplayInstaller>
 		Container.Bind<CameraController>().FromComponentInHierarchy().AsSingle();
 		Container.Bind<PlayerController>().FromComponentInHierarchy().AsSingle();
 		Container.Bind<EnemyController>().FromComponentInHierarchy().AsSingle();
+		Container.Bind<WordController>().FromComponentInHierarchy().AsSingle();
+		Container.Bind<ScoreController>().FromComponentInHierarchy().AsSingle();
 		Container.BindMemoryPool<Enemy, Enemy.Pool>().FromComponentInNewPrefab(_enemyPrefab)
 			.UnderTransform(_enemyParentTransform);
     }
