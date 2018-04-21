@@ -66,7 +66,7 @@ public class Enemy : MonoBehaviour
 		// Check if the current pathing is complete
 		if (_agent.IsComplete() && _pathCoroutine == null)
 		{
-			//_pathCoroutine = StartCoroutine(PickNewPath());
+			_pathCoroutine = StartCoroutine(PickNewPath());
 		}
 	}
 
