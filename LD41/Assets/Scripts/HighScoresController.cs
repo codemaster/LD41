@@ -89,7 +89,8 @@ public class HighScoresController : MonoBehaviour
 	private void UpdateScoreEntires()
 	{
 		// Ensure the scores are sorted
-		_scores.OrderByDescending(x => x);
+		_scores.Sort();
+		_scores.Reverse();
 		// Update the entries
 		for (int i = 0; i < _scoreEntries.Count; ++i)
 		{

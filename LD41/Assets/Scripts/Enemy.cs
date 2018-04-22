@@ -177,12 +177,14 @@ public class Enemy : MonoBehaviour
 			// Pick a random position to spawn the enemy
 			var scaledSize = Vector3.Scale(_navMeshSurface.size,
 				_navMeshSurface.gameObject.transform.localScale);
-			var maxDistance = Mathf.Min(scaledSize.x, scaledSize.y);
-			var direction = (Random.insideUnitSphere * maxDistance) +
-				_navMeshSurface.center;
+			var maxDistance = Mathf.Min(scaledSize.x, scaledSize.y) / 2.0f;
 
 			NavMeshHit hit;
-			NavMesh.SamplePosition(direction, out hit, maxDistance, -1);
+			do {
+				var direction = (Random.insideUnitSphere * maxDistance) +
+					_navMeshSurface.center;
+				NavMesh.SamplePosition(direction, out hit, maxDistance, -1);
+			} while (hit.position.x == Mathf.Infinity || hit.position.z == Mathf.Infinity);
 			enemy.transform.position = hit.position;
 		}
 
