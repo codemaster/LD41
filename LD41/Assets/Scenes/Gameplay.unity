@@ -3134,7 +3134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _expoBase: 1.25
-  _useDictionary: 0
+  _useDictionary: 1
   _numWords: 5
   _words:
   - ludum
