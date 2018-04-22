@@ -24,6 +24,7 @@ public class GameplayInstaller : MonoInstaller<GameplayInstaller>
 	/// </summary>
     public override void InstallBindings()
     {
+		Container.Bind<DownloadingPanel>().FromComponentInHierarchy().AsSingle();
 		Container.Bind<NavMeshSurface>().FromComponentInHierarchy().AsSingle();
 		Container.Bind<SoundController>().FromComponentInHierarchy().AsSingle();
 		Container.Bind<GameController>().FromComponentInHierarchy().AsSingle();

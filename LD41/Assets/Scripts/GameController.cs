@@ -18,6 +18,12 @@ public class GameController : MonoBehaviour
 	private float _expoBase = 1.25f;
 
 	/// <summary>
+	/// The downloading panel
+	/// </summary>
+	[Inject]
+	private DownloadingPanel _downloadingPanel;
+
+	/// <summary>
 	/// The enemy controller
 	/// </summary>
 	[Inject]
@@ -69,6 +75,16 @@ public class GameController : MonoBehaviour
 	/// The words that were already used
 	/// </summary>
 	private readonly HashSet<string> _usedWords = new HashSet<string>();
+
+	/// <summary>
+	/// The cache key for the dictionary
+	/// </summary>
+	private const string DictionaryCacheKey = "Dictionary";
+
+	/// <summary>
+	/// How many seconds we should try to download the dictionary before timing out
+	/// </summary>
+	private const int DictionaryGetTimeout = 10;
 
 	/// <summary>
 	/// The URL of the dictionary to download if configured to do so
@@ -149,26 +165,55 @@ public class GameController : MonoBehaviour
 	/// <returns>Coroutine enumerator</returns>
 	private IEnumerator DownloadDictionary()
 	{
-		// Request the dictionary
-		using (var request = UnityWebRequest.Get(DictionaryUrl))
+		// Check if we have the dictionary already cached
+		var data = PlayerPrefs.GetString(DictionaryCacheKey);
+		if (!string.IsNullOrWhiteSpace(data))
 		{
-			yield return request.SendWebRequest();
-
-			// Check if an error occurred
-			if (request.isNetworkError || request.isHttpError)
-			{
-				Debug.LogError($"Unable to download dictionary: {request.error}", this);
-				yield return null;
-			}
-
-			// Obtain the text of the dictionary
-			var data = request.downloadHandler.text;
-
 			// Clear our word listing
 			_words.Clear();
 			// Append each of the non-empty lines in the dictionary to the word listing
 			_words.AddRange(data.Split(new[] { "\r\n", "\r", "\n" },
 				StringSplitOptions.RemoveEmptyEntries));
+		}
+		else
+		{
+			// Request the dictionary
+			using (var request = UnityWebRequest.Get(DictionaryUrl))
+			{
+				// Show download progress bar
+				_downloadingPanel.ShowPanel(request);
+
+				// Clean up when disposing the request
+				request.disposeDownloadHandlerOnDispose = true;
+
+				// Ensure our request can time out so we don't wait forever
+				request.timeout = DictionaryGetTimeout;
+
+				// Start the request!
+				yield return request.SendWebRequest();
+
+				// Check if an error occurred
+				if (request.isNetworkError || request.isHttpError)
+				{
+					Debug.LogError($"Unable to download dictionary: {request.error}", this);
+					yield break;
+				}
+
+				// Obtain the text of the dictionary
+				data = request.downloadHandler.text;
+
+				// Cache the result
+				PlayerPrefs.SetString(DictionaryCacheKey, data);
+
+				// Clear our word listing
+				_words.Clear();
+				// Append each of the non-empty lines in the dictionary to the word listing
+				_words.AddRange(data.Split(new[] { "\r\n", "\r", "\n" },
+					StringSplitOptions.RemoveEmptyEntries));
+
+				// Hide download progress bar
+				_downloadingPanel.HidePanel();
+			}
 		}
 
 		// Pick the next (first) word
