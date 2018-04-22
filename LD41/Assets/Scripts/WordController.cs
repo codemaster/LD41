@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
-using Zenject;
 
 /// <summary>
 /// Controller for the word we are trying to spell
@@ -51,6 +50,12 @@ public class WordController : MonoBehaviour
 
 		_wordDisplay.SetText(capitalizedWord);
 	}
+
+	/// <summary>
+	/// If the word has been completed or not
+	/// </summary>
+	/// <returns>If the word has been completed or not</returns>
+	public bool IsCompleted() => _letters.Count(entry => !entry.Item2) == 0;
 
 	/// <summary>
 	/// Gets the unobtained letters in the current word
