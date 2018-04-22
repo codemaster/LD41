@@ -50,6 +50,12 @@ public class PlayerController : MonoBehaviour
 	private ScoreController _scoreController;
 
 	/// <summary>
+	/// The sound controller
+	/// </summary>
+	[Inject]
+	private SoundController _soundController;
+
+	/// <summary>
 	/// The word controller
 	/// </summary>
 	[Inject]
@@ -105,6 +111,9 @@ public class PlayerController : MonoBehaviour
 		// Show the particle
 		_gunParticle.Play();
 
+		// Play the sound
+		_soundController.PlaySFX(_soundController.Gunshot);
+
 		// Note: Using Vector3.back, as our characters are technically backward.
 		// TODO: Maybe adjust characters to go forward instead. NavMesh issue?
 		var shootPos = transform.position + Vector3.back + Vector3.up;
@@ -120,6 +129,14 @@ public class PlayerController : MonoBehaviour
 
 		// Enemies were hit!
 		var enemies = colliders.Select(c => c.GetComponent<Enemy>()).ToList();
+
+		// If we hit any enemies
+		if (enemies.Count > 0)
+		{
+			// Play the enemy hurt sound
+			_soundController.PlaySFX(_soundController.EnemyHurt);
+		}
+
 		// While we have enemies left...
 		while (enemies.Count > 0)
 		{
@@ -129,6 +146,8 @@ public class PlayerController : MonoBehaviour
 				var foundEnemy = enemies.First(e => e.Letter == _wordController.GetNextLetter());
 				// We obtained the letter!
 				_wordController.ObtainLetter();
+				// Play the sound
+				_soundController.PlaySFX(_soundController.GainPoints);
 				// Increment the score!
 				_scoreController.Score += _scoreController.ScorePerLetterIncrement *
 					_wordController.GetNumberObtainedLetters();
@@ -143,6 +162,8 @@ public class PlayerController : MonoBehaviour
 			{
 				// Otherwise, penalty for the enemies left
 				var numEnemies = enemies.Count;
+				// Play the sound
+				_soundController.PlaySFX(_soundController.LosePoints);
 				// Decrement the score!
 				_scoreController.Score -= _scoreController.ScoreDecrementPerBadEnemy *
 					_wordController.GetNumberObtainedLetters();

@@ -18,16 +18,34 @@ public class GameController : MonoBehaviour
 	private float _expoBase = 1.25f;
 
 	/// <summary>
-	/// The word controller
-	/// </summary>
-	[Inject]
-	private WordController _wordController;
-
-	/// <summary>
 	/// The enemy controller
 	/// </summary>
 	[Inject]
 	private EnemyController _enemyController;
+
+	/// <summary>
+	/// The high scores controller
+	/// </summary>
+	[Inject]
+	private HighScoresController _highScoresController;
+
+	/// <summary>
+	/// The score controller
+	/// </summary>
+	[Inject]
+	private ScoreController _scoreController;
+
+	/// <summary>
+	/// The sound controller
+	/// </summary>
+	[Inject]
+	private SoundController _soundController;
+
+	/// <summary>
+	/// The word controller
+	/// </summary>
+	[Inject]
+	private WordController _wordController;
 
 	/// <summary>
 	/// Whether to use the dictionary or not
@@ -56,11 +74,6 @@ public class GameController : MonoBehaviour
 	/// The URL of the dictionary to download if configured to do so
 	/// </summary>
 	private const string DictionaryUrl = "https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt";
-
-	/// <summary>
-	/// Coroutine for downloading the dictionary online
-	/// </summary>
-	private Coroutine _dictionaryCoroutine;
 
 	/// <summary>
 	/// Go to the next letter
@@ -97,6 +110,23 @@ public class GameController : MonoBehaviour
 	}
 
 	/// <summary>
+	/// Play again!
+	/// </summary>
+	public void PlayAgain()
+	{
+		// Play the sound
+		_soundController.PlaySFX(_soundController.PlayAgain);
+		// Hide the high scores UI
+		_highScoresController.HideHighScores();
+		// Reset our score
+		_scoreController.Score = 0;
+		// Clear the used words
+		_usedWords.Clear();
+		// Pick the next word
+		SetNextWord();
+	}
+
+	/// <summary>
 	/// Initialize with reference to others
 	/// </summary>
 	private void Start()
@@ -104,7 +134,7 @@ public class GameController : MonoBehaviour
 		if (_useDictionary)
 		{
 			// Download the dictionary, which will pick the word
-			_dictionaryCoroutine = StartCoroutine(DownloadDictionary());
+			StartCoroutine(DownloadDictionary());
 		}
 		else
 		{
@@ -153,8 +183,10 @@ public class GameController : MonoBehaviour
 		// Check if we have used all of the words
 		if (_usedWords.Count >= Math.Min(_words.Count, _numWords))
 		{
-			// TODO: Show ending (leaderboard, etc.)
-			Debug.Log("Done!");
+			// Try to add our final score to the high scores
+			_highScoresController.TryAddScore(_scoreController.Score);
+			// Show the high scores UI
+			_highScoresController.ShowHighScores();
 			return;
 		}
 

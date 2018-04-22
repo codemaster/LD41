@@ -11,6 +11,24 @@ using Zenject;
 public class Enemy : MonoBehaviour
 {
 	/// <summary>
+	/// The sound controller
+	/// </summary>
+	[Inject]
+	private SoundController _soundController;
+
+	/// <summary>
+	/// Minimum time to randomize for when to groan
+	/// </summary>
+	[SerializeField]
+	private float _minTimeGroan = 3f;
+
+	/// <summary>
+	/// Maximum time to randomize for when to groan
+	/// </summary>
+	[SerializeField]
+	private float _maxTimeGroan = 10f;
+
+	/// <summary>
 	/// The letter for the enemy to show
 	/// </summary>
 	[SerializeField]
@@ -37,6 +55,11 @@ public class Enemy : MonoBehaviour
 	/// Coroutine holding area for picking a path
 	/// </summary>
 	private Coroutine _pathCoroutine;
+
+	/// <summary>
+	/// Coroutine holding area for groaning
+	/// </summary>
+	private Coroutine _groanCoroutine;
 
 	/// <summary>
 	/// Getter and setter for the enemy's letter
@@ -68,6 +91,12 @@ public class Enemy : MonoBehaviour
 		{
 			_pathCoroutine = StartCoroutine(PickNewPath());
 		}
+
+		// Check if we should schedule another groan
+		if (_groanCoroutine == null)
+		{
+			_groanCoroutine = StartCoroutine(Groan());
+		}
 	}
 
 	/// <summary>
@@ -88,6 +117,35 @@ public class Enemy : MonoBehaviour
 
 		// Clear out the coroutine at the end
 		_pathCoroutine = null;
+	}
+
+	/// <summary>
+	/// The enemy groans
+	/// </summary>
+	/// <returns>Coroutine enumerator</returns>
+	private IEnumerator Groan()
+	{
+		var waitTime = Random.Range(_minTimeGroan, _maxTimeGroan);
+		yield return new WaitForSeconds(waitTime);
+		var sfx = Random.value > 0.5f ?
+			_soundController.EnemyGroan1 : _soundController.EnemyGroan2;
+		_soundController.PlaySFX(sfx);
+	}
+
+	/// <summary>
+	/// When the enemy object is disabled
+	/// </summary>
+	private void OnDisable()
+	{
+		if (_pathCoroutine != null)
+		{
+			StopCoroutine(_pathCoroutine);
+		}
+
+		if (_groanCoroutine != null)
+		{
+			StopCoroutine(_groanCoroutine);
+		}
 	}
 
 	/// <summary>
