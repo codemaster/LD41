@@ -1,5 +1,15 @@
-# LD41
+# Spelling Zombie Shooter
 Game for Ludum Dare 41. Theme: Combine 2 Incompatible Genres.
+
+LD41 submission: https://ldjam.com/events/ludum-dare/41/$85942
+
+Itch.io Page: https://itch.io/game/summary/247660
+
+## Preview
+<img src="https://i.imgur.com/S5J2y8v.gif" alt="Preview of the game" width="512" />
+
+## Downloads
+Binaries for Windows, Mac, and Linux available on the [Itch.io page](https://itch.io/game/summary/247660)
 
 ## Dependencies
 
