@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
@@ -35,8 +36,7 @@ public class EnemyController : MonoBehaviour
 	/// <param name="enemy">The enemy to destroy</param>
 	public void DestroyEnemy(Enemy enemy)
 	{
-		// Despawn the enemy
-		_enemyPool.Despawn(enemy);
+		StartCoroutine(DestroyWithHit(enemy));
 	}
 
 	/// <summary>
@@ -61,5 +61,17 @@ public class EnemyController : MonoBehaviour
 		{
 			DestroyEnemy(enemy);
 		}
+	}
+
+	/// <summary>
+	/// Destroys an enemy and shows the hit particle effect
+	/// </summary>
+	/// <param name="enemy"></param>
+	/// <returns></returns>
+	private IEnumerator DestroyWithHit(Enemy enemy)
+	{
+		enemy.ShowHit();
+		yield return new WaitForSeconds(enemy.HitParticleTime);
+		_enemyPool.Despawn(enemy);
 	}
 }

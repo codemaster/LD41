@@ -47,6 +47,12 @@ public class Enemy : MonoBehaviour
 	private float _randomDistance = 5f;
 
 	/// <summary>
+	/// Particle system for when the enemy is hit
+	/// </summary>
+	[SerializeField]
+	private ParticleSystem _hitParticles;
+
+	/// <summary>
 	/// The NavMeshAgent
 	/// </summary>
 	private NavMeshAgent _agent;
@@ -72,6 +78,20 @@ public class Enemy : MonoBehaviour
 			_letterDisplay.SetText(_letter.ToString());
 		}
 	}
+
+	/// <summary>
+	/// Obtains the hit particle time
+	/// </summary>
+	/// <returns></returns>
+	public float HitParticleTime
+	{
+		get { return _hitParticles.main.duration; }
+	}
+
+	/// <summary>
+	/// Shows the hit particles
+	/// </summary>
+	public void ShowHit() => _hitParticles.Play();
 
 	/// <summary>
 	/// Self-initialization
