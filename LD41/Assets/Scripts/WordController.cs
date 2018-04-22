@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
+using Zenject;
 
 /// <summary>
 /// Controller for the word we are trying to spell
@@ -39,13 +40,24 @@ public class WordController : MonoBehaviour
 			throw new ArgumentException("Can't set the word to be null or empty", nameof(word));
 		}
 
+		var capitalizedWord = word.ToUpperInvariant();
+
 		_letters.Clear();
-		var letters = word.ToCharArray();
+		var letters = capitalizedWord.ToCharArray();
 		foreach (var letter in letters)
 		{
 			_letters.Add(new Tuple<char, bool>(letter, false));
 		}
+
+		_wordDisplay.SetText(capitalizedWord);
 	}
+
+	/// <summary>
+	/// Gets the unobtained letters in the current word
+	/// </summary>
+	/// <returns>The unobtained letters in the current word</returns>
+	public List<char> GetUnobtainedLetters() => _letters
+		.Where(entry => !entry.Item2).Select(entry => entry.Item1).ToList();
 
 	/// <summary>
 	/// Gets the next letter that needs to be obtained
@@ -57,6 +69,29 @@ public class WordController : MonoBehaviour
 		var unobtained = _letters.First(entry => !entry.Item2);
 		// Return that leter
 		return unobtained.Item1;
+	}
+
+	/// <summary>
+	/// Obtains the number of obtained letters
+	/// </summary>
+	/// <returns></returns>
+	public int GetNumberObtainedLetters() => _letters.Count(entry => entry.Item2);
+
+	/// <summary>
+	/// Obtains the next letter!
+	/// </summary>
+	public void ObtainLetter()
+	{
+		// Find the first entry that has not yet been obtained
+		var unobtained = _letters.First(entry => !entry.Item2);
+		// Find the index
+		var index = _letters.FindIndex(entry =>
+			entry.Item1 == unobtained.Item1 &&
+			entry.Item2 == unobtained.Item2);
+		// Update the letter as obtained!
+		_letters[index] = new Tuple<char, bool>(unobtained.Item1, true);
+		// Update the display text
+		UpdateDisplay();
 	}
 
 	/// <summary>
@@ -79,7 +114,7 @@ public class WordController : MonoBehaviour
 			// Colorize if obtained
 			if (entry.Item2)
 			{
-				builder.Append("<color=");
+				builder.Append("<color=#");
 				builder.Append(colorHexStr);
 				builder.Append(">");
 			}

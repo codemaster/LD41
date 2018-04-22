@@ -26,6 +26,30 @@ public class PlayerController : MonoBehaviour
 	private ParticleSystem _gunParticle;
 
 	/// <summary>
+	/// The shotgun scatter range
+	/// </summary>
+	[SerializeField]
+	private float _shotgunScatterRange = 3f;
+
+	/// <summary>
+	/// The enemy controller
+	/// </summary>
+	[Inject]
+	private EnemyController _enemyController;
+
+	/// <summary>
+	/// The game controller
+	/// </summary>
+	[Inject]
+	private GameController _gameController;
+
+	/// <summary>
+	/// The score controller
+	/// </summary>
+	[Inject]
+	private ScoreController _scoreController;
+
+	/// <summary>
 	/// The word controller
 	/// </summary>
 	[Inject]
@@ -55,13 +79,13 @@ public class PlayerController : MonoBehaviour
 	private void Update()
 	{
 		// Shooting
-		if (Input.GetButtonUp("Fire1"))
+		if (Input.GetButtonUp("Fire2") || Input.GetButtonUp("Jump"))
 		{
 			Shoot();
 		}
 
 		// Movement
-		if (Input.GetButtonUp("Fire2"))
+		if (Input.GetButtonUp("Fire1"))
 		{
 			Move();
 		}
@@ -88,7 +112,7 @@ public class PlayerController : MonoBehaviour
 		var layerMask = 1 << enemyLayer;
 
 		// Check if our shotgun spread hit any enemies
-		var colliders = Physics.OverlapSphere(shootPos, 2.5f, layerMask);
+		var colliders = Physics.OverlapSphere(shootPos, _shotgunScatterRange, layerMask);
 		if (colliders.Length == 0)
 		{
 			return;
@@ -103,14 +127,28 @@ public class PlayerController : MonoBehaviour
 			{
 				// If any of the enemies are the next letter
 				var foundEnemy = enemies.First(e => e.Letter == _wordController.GetNextLetter());
-				// TODO: we obtained the letter!
-				// TODO: kill the enemy
-				// remove it from the listing
+				// We obtained the letter!
+				_wordController.ObtainLetter();
+				// Increment the score!
+				_scoreController.Score += _scoreController.ScorePerLetterIncrement *
+					_wordController.GetNumberObtainedLetters();
+				// Remove the enemy from the listing
 				enemies.Remove(foundEnemy);
+				// Destroy the enemy
+				_enemyController.DestroyEnemy(foundEnemy);
+				// Go to the next letter!
+				_gameController.NextLetter();
 			}
 			catch
 			{
 				// Otherwise, penalty for the enemies left
+				var numEnemies = enemies.Count;
+				// Decrement the score!
+				_scoreController.Score -= _scoreController.ScoreDecrementPerBadEnemy *
+					_wordController.GetNumberObtainedLetters();
+				// Destroy the enemies
+				_enemyController.DestroyEnemies(enemies);
+				enemies.Clear();
 			}
 		}
 	}

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 using Zenject;
 
 /// <summary>
@@ -23,6 +24,8 @@ public class GameplayInstaller : MonoInstaller<GameplayInstaller>
 	/// </summary>
     public override void InstallBindings()
     {
+		Container.Bind<NavMeshSurface>().FromComponentInHierarchy().AsSingle();
+		Container.Bind<GameController>().FromComponentInHierarchy().AsSingle();
 		Container.Bind<CameraController>().FromComponentInHierarchy().AsSingle();
 		Container.Bind<PlayerController>().FromComponentInHierarchy().AsSingle();
 		Container.Bind<EnemyController>().FromComponentInHierarchy().AsSingle();

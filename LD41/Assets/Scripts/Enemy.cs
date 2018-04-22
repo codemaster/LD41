@@ -93,8 +93,14 @@ public class Enemy : MonoBehaviour
 	/// <summary>
 	/// Pool for creating an enemy
 	/// </summary>
-	public class Pool : MonoMemoryPool<Vector3, Enemy>
+	public class Pool : MonoMemoryPool<char, Enemy>
 	{
+		/// <summary>
+		/// The nav mesh surface
+		/// </summary>
+		[Inject]
+		private NavMeshSurface _navMeshSurface;
+
 		/// <summary>
 		/// Camera controller
 		/// </summary>
@@ -104,12 +110,22 @@ public class Enemy : MonoBehaviour
 		/// <summary>
 		/// Reinitializing a previously used enemy
 		/// </summary>
-		/// <param name="pos">The position to spawn the enemy at</param>
 		/// <param name="enemy">The enemy object we are reinitializing</param>
-		protected override void Reinitialize(Vector3 pos, Enemy enemy)
+		protected override void Reinitialize(char letter, Enemy enemy)
 		{
-			// TODO: Generate a new letter for the enemy
-			enemy.transform.position = pos;
+			// Set the letter
+			enemy.Letter = letter;
+
+			// Pick a random position to spawn the enemy
+			var scaledSize = Vector3.Scale(_navMeshSurface.size,
+				_navMeshSurface.gameObject.transform.localScale);
+			var maxDistance = Mathf.Min(scaledSize.x, scaledSize.y);
+			var direction = (Random.insideUnitSphere * maxDistance) +
+				_navMeshSurface.center;
+
+			NavMeshHit hit;
+			NavMesh.SamplePosition(direction, out hit, maxDistance, -1);
+			enemy.transform.position = hit.position;
 		}
 
 		/// <summary>
@@ -119,6 +135,7 @@ public class Enemy : MonoBehaviour
 		protected override void OnSpawned(Enemy enemy)
 		{
 			_cameraController.AddTarget(enemy.transform);
+			base.OnSpawned(enemy);
 		}
 
 		/// <summary>
@@ -128,6 +145,7 @@ public class Enemy : MonoBehaviour
 		protected override void OnDespawned(Enemy enemy)
 		{
 			_cameraController.RemoveTarget(enemy.transform);
+			base.OnDespawned(enemy);
 		}
 	}
 }

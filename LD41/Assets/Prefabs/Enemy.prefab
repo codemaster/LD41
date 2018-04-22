@@ -443,8 +443,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d0f328d3b9ae4e40877a3bb1a283802, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _letter: 0
-  _letterDisplay: {fileID: 0}
+  _letter: 87
+  _letterDisplay: {fileID: 114705814187765056}
   _randomDistance: 5
 --- !u!114 &114705814187765056
 MonoBehaviour:
